@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    configs:
+      - source: servers.json
+        target: /pgadmin4/servers.json
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - app-network
+      
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge
+
+configs:
+  servers.json:
+    content: |
+      {
+        "Servers": {
+          "1": {
+            "Name": "PostgreSQL",
+            "Group": "Servers",
+            "Host": "db",
+            "Port": 5432,
+            "Username": "${POSTGRES_USER}",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "${POSTGRES_DB}"
+          }
+        }
+      }

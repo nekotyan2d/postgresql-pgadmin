@@ -1,0 +1,1 @@
+A docker compose for PostgreSQL with pgadmin
