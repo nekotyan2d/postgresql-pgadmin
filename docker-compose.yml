@@ -33,8 +33,6 @@ services:
 
 volumes:
   db-data:
-    external: true
-    name: "${POSTGRES_VOLUME:-db-data}"
 
 networks:
   app-network:
